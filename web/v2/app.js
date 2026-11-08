@@ -641,6 +641,10 @@ function renderUpdate() {
     bad = failed || (!!u.check_error && !(recent && job.state === 'done'));
     label = UII18n.t("检查更新");
   }
+  if (u.custom_build) {
+    text += ` · ${UII18n.t("自訂版本")} ${u.custom_build.label}`;
+    if (parts.some(p => p.key === 'client')) text += `。${UII18n.t("官方客戶端更新會移除此裝置的自訂修改，請確認新版本已包含所需功能後再更新。")}`;
+  }
   $('gearDot').classList.toggle('on', avail && !busy && !starting);
   $('updTitle').textContent = title;
   $('updSub').textContent = text;
@@ -680,7 +684,8 @@ $('updBtn').addEventListener('click', async () => {
   renderUpdate();
   setTimeout(renderUpdate, 30100);
   if (DEMO) return;   // ?demo: shows the waiting state (and the button again after 30 s)
-  const r = await (await post('/api/update/install', { version: cli ? cli.version : '', system: sys ? sys.version : '' }))?.json?.();
+  const r = await (await post('/api/update/install', { version: cli ? cli.version : '', system: sys ? sys.version : '',
+    replace_custom: !!(cli && ui.update?.custom_build) }))?.json?.();
   if (!r || !r.ok) {
     updStarting = 0;
     renderUpdate();

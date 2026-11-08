@@ -54,6 +54,8 @@ v1、v2 介面共用 `web/i18n.js` 與 `web/zh-Hant.js`；新增介面文案時�
 
 語系測試（不需要音訊裝置或 npm 套件）：`node --test tests/test_i18n.cjs`。
 
+官方客戶端更新會替換整個程式目錄，因此尚未合併的自訂介面也會被替換。部署自訂版本時，可在程式根目錄放置 `PR-BUILD.json`，例如 `{"label":"0.1.6 + PR4","client":"提交雜湊"}`。更新頁會顯示自訂標記，並在既有的確認更新步驟提醒官方更新將移除自訂修改；客戶端更新 API 須明確傳入 `replace_custom: true`，系統層單獨更新不受此限制。標記是提醒與客戶端 API 保護，不會修改 root 更新器或阻止管理員直接安裝官方版本。
+
 ## 第三方
 
 - `thinksmart_client/webrtc_apm/`：py-xiaozhi 的 WebRTC APM ctypes 封装和 arm64 库，MIT（`LICENSE-py-xiaozhi`）
