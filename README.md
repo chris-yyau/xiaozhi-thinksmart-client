@@ -43,6 +43,16 @@
 - `POST /api/power-off`：关机（`systemctl halt`，插着电也不会自己重新开机，屏幕变黑后等 10 秒再拔电源；正在更新时不执行）。页面先收到 `power {"state": "off"}` 显示「正在关机」
 - `POST /api/history/clear {}` 或 `{"memory_only": true}`：清除聊天记录（转给服务端的 `/kiosk/chat/clear`，只清服务端本机存的所有模型的记录和总结记忆，Claude Code、Grok Bot 自己的会话不动；`memory_only` 只清记忆）。聊天页的记录来自服务端存的 `GET /kiosk/chat/history`（每个模型最近 50 条），没连着时载入，断开、重启后还在；说「清除聊天记录」确认后服务端发 `{"type": "chat_history", "state": "cleared"}`，页面清空
 
+## 介面語言
+
+在設定頁的「介面語言」可切換簡體中文與繁體中文。首次開啟會依瀏覽器的語言選擇；
+`zh-TW`、`zh-HK`、`zh-MO` 與 `zh-Hant` 使用繁體中文。手動選擇會保存在該瀏覽器的本機儲存空間，重新開啟仍會保留。
+
+只翻譯介面文案，不轉換聊天原文、Wi-Fi 名稱、使用者輸入或語音辨識結果。模型的回覆語言和語音供應商在網關管理後台設定。
+v1、v2 介面共用 `web/i18n.js` 與 `web/zh-Hant.js`；新增介面文案時，使用 `UII18n.t()` 並補上字典。
+
+語系測試（不需要音訊裝置或 npm 套件）：`node --test tests/test_i18n.cjs`。
+
 ## 第三方
 
 - `thinksmart_client/webrtc_apm/`：py-xiaozhi 的 WebRTC APM ctypes 封装和 arm64 库，MIT（`LICENSE-py-xiaozhi`）
