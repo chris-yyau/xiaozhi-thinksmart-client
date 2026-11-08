@@ -5,12 +5,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function load(language, saved, blocked = false) {
+function load(language, saved, blocked = false, search = '') {
   const values = new Map(saved ? [['thinksmart.uiLocale', saved]] : []);
   const picker = {value: '', addEventListener(event, fn) { this[event] = fn; }};
-  const context = {navigator: {language},
+  const context = {navigator: {language}, URLSearchParams,
     localStorage: {getItem(k) { if (blocked) throw Error('disabled'); return values.get(k); }, setItem(k,v) { values.set(k,v); }},
-    location: {reload() { this.reloaded = true; }},
+    location: {search, reload() { this.reloaded = true; }},
     NodeFilter: {SHOW_TEXT: 4, FILTER_ACCEPT: 1, FILTER_REJECT: 2},
     document: {documentElement: {}, body: {}, title: '小麦',
       createTreeWalker() {return {nextNode() {return null;}};},
@@ -43,6 +43,12 @@ test('known UI copy is translated; arbitrary content and prototype names remain 
 
 test('storage-disabled browsers can still load and translate', () => {
   assert.equal(load('zh-TW', null, true).api.t('设置'), '設定');
+});
+
+test('bookmarked locale initializes new devices without overriding a saved preference', () => {
+  assert.equal(load('en-US', null, false, '?lang=zh-Hant').api.locale, 'zh-Hant');
+  assert.equal(load('en-US', 'zh-Hans', false, '?lang=zh-Hant').api.locale, 'zh-Hans');
+  assert.equal(load('en-US', null, false, '?lang=invalid').api.locale, 'zh-Hans');
 });
 
 test('selector persists preference and document language is accessible', () => {
