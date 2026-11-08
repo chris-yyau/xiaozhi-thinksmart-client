@@ -50,11 +50,14 @@ class WakePrompt:
         if self.task and not self.task.done():
             return
         self.retry_at = time.monotonic() + 60
-        self.task = asyncio.create_task(self._fetch(revision))
+        text = profile.get('wake_text') or '在'
+        if not isinstance(text, str) or len(text) > 120:
+            return
+        self.task = asyncio.create_task(self._fetch(revision, text))
 
-    async def _fetch(self, revision):
+    async def _fetch(self, revision, text):
         try:
-            audio = await self.fetch('在')
+            audio = await self.fetch(text)
             if self.wanted != revision or not valid_audio(audio):
                 return
             self.directory.mkdir(mode=0o700, parents=True, exist_ok=True)

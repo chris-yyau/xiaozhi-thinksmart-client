@@ -65,3 +65,15 @@ def test_truncated_or_invalid_audio_is_not_used():
     assert valid_audio(wav())
     assert not valid_audio(wav()[:50])
     assert not valid_audio(b'') and not valid_audio(None)
+
+
+def test_gateway_supplies_the_selected_languages_wake_text(tmp_path):
+    async def run():
+        calls = []
+        async def fetch(text):
+            calls.append(text); return wav()
+        prompt = WakePrompt(fetch, lambda audio: None, tmp_path)
+        prompt.update({'revision': 'a' * 32, 'wake_text': '喺度'}); await prompt.task
+        prompt.update({'revision': 'b' * 32, 'wake_text': "I'm here."}); await prompt.task
+        assert calls == ['喺度', "I'm here."]
+    asyncio.run(run())
